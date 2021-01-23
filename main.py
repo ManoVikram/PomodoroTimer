@@ -11,8 +11,17 @@ WORK_MIN = 25
 SHORT_BREAK_MIN = 5
 LONG_BREAK_MIN = 20
 reps = 1
+timer = None
 
-# ---------------------------- TIMER RESET ------------------------------- # 
+# ---------------------------- TIMER RESET ------------------------------- #
+def resetTimer():
+    window.after_cancel(timer)
+    global reps
+    reps = 0
+    canvas.itemconfig(timerText, text="00:00")
+    titleLabel.config(text="Pomodoro Timer")
+    checkmark.config(text="")
+
 
 # ---------------------------- TIMER MECHANISM ------------------------------- #
 def startTimer():
@@ -47,8 +56,14 @@ def countDown(count):
         countSeconds = "0" + str(countSeconds)
     canvas.itemconfig(timerText, text=f"{countMinutes}:{countSeconds}")
     if count > 0:
-        window.after(1000, countDown, count - 1)
+        global timer
+        timer = window.after(1000, countDown, count - 1)
     else:
+        done = ""
+        for _ in range(math.floor(reps / 2)):
+            done += "😃"
+        if reps % 2:
+            checkmark.config(text=done)
         startTimer()
 
 # ---------------------------- UI SETUP ------------------------------- #
@@ -69,10 +84,10 @@ canvas.grid(column=1, row=1)
 startButton = Button(text="Start", highlightthickness=0, command=startTimer)
 startButton.grid(column=0, row=2)
 
-resetButton = Button(text="Reset", highlightthickness=0)
+resetButton = Button(text="Reset", highlightthickness=0, command=resetTimer)
 resetButton.grid(column=2, row=2)
 
-checkmark = Label(text="✔", fg=GREEN, bg=YELLOW)
+checkmark = Label(fg=GREEN, bg=YELLOW)
 checkmark.grid(column=1, row=3)
 
 window.mainloop()
